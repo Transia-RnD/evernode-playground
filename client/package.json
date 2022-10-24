@@ -1,0 +1,8 @@
+{
+    "name": "daoclient",
+    "dependencies": {
+        "hotpocket-js-client": "0.5.3",
+        "lmdb": "^2.6.8",
+        "node-lmdb": "^0.9.7"
+    }
+}
