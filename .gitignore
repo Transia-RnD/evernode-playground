@@ -7,6 +7,8 @@ node_modules
 # dist/
 
 # lmdb
+mydata/data.mdb
+mydata/lock.mdb
 
 # api-commands.txt
 
