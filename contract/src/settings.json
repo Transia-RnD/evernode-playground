@@ -1,6 +1,6 @@
 {
     "settings" : {
-        "dbPath":"mydb",
+        "dbPath":"mydata",
         "contractWalletAddress": "rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr",
         "contractWalletSecret": "sswXtv8odxCnUcBwaySJAV6k4ibTk"
     }
