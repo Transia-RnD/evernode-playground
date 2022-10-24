@@ -933,7 +933,7 @@ module.exports = require("tty");
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"X":{"dbPath":"mydb","contractWalletAddress":"rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr","contractWalletSecret":"sswXtv8odxCnUcBwaySJAV6k4ibTk"}}');
+module.exports = JSON.parse('{"X":{"dbPath":"mydata","contractWalletAddress":"rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr","contractWalletSecret":"sswXtv8odxCnUcBwaySJAV6k4ibTk"}}');
 
 /***/ })
 
