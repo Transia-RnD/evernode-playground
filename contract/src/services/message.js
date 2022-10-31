@@ -23,7 +23,6 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in creating the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
             this.#db.close();
         }
         // console.log(resObj);
@@ -41,7 +40,38 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in getting the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
+            this.#db.close();
+        }
+        return resObj;
+    }
+
+    // Update a db record for a message key
+    async update() {
+        const id = this.#message.id;
+        let resObj = {};
+        try {
+            this.#db.open();
+            const result = await this.#db.update(id);
+            resObj.success = { data: result };
+        } catch (error) {
+            resObj.error = `Error in updating the ${this.#dbPath} ${error}`;
+        } finally {
+            this.#db.close();
+        }
+        return resObj;
+    }
+
+    // Deletes a db record for a message key
+    async delete() {
+        const id = this.#message.id;
+        let resObj = {};
+        try {
+            this.#db.open();
+            const result = await this.#db.delete(id);
+            resObj.success = { data: null };
+        } catch (error) {
+            resObj.error = `Error in deleting the ${this.#dbPath} ${error}`;
+        } finally {
             this.#db.close();
         }
         return resObj;

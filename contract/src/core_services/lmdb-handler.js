@@ -30,15 +30,6 @@ class LMDBDatabase {
                 name: this.dbCollection,
                 create: true // will create if database did not exist
             })
-
-            console.log(this.env);
-            console.log(this.db);
-
-            // lmdb-js
-            // this.db = open({
-            //     path: this.dbCollection,
-            //     compression: true,
-            // });
             this.openConnections = 1;
         }
         else
@@ -102,18 +93,56 @@ class LMDBDatabase {
             }
         }
         return JSON.parse(data.toString());
+    }
 
-        // lmdb-js
-        // await this.db.get(key)
+    async update(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB UPDATE');
+        var txn = this.env.beginTxn();
+        txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error',
+            }
+        }
+        return JSON.parse(data.toString());
+    }
+
+    async delete(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB DELETE');
+        var txn = this.env.beginTxn();
+        txn.del(this.db, key)
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error',
+            }
+        }
+        return JSON.parse(data.toString());
     }
 
     async transaction(key, value) {
         console.log('GET');
-
-        // lmdb-js
-        // myDB.transaction(() => {
-        //     myDB.put(key, value);
-        // });
     }
 
     generateKey(length) {
