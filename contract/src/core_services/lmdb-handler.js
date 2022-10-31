@@ -68,8 +68,6 @@ class LMDBDatabase {
         txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
         txn.commit();
         return key
-        // lmdb-js
-        // await this.db.put(key, value);
     }
 
     async get(key) {
