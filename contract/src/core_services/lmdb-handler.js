@@ -136,7 +136,7 @@ class LMDBDatabase {
                 type: 'error',
             }
         }
-        return JSON.parse(data.toString());
+        return true;
     }
 
     async transaction(key, value) {
