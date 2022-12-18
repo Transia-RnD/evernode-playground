@@ -65,7 +65,7 @@ class LMDBDatabase {
             this.openConnections--;
     }
 
-    create(key, value) {
+    async create(key, value) {
         if (!this.env)
             throw 'Env connection is not open.';
         if (!this.db)
@@ -77,8 +77,6 @@ class LMDBDatabase {
         txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
         txn.commit();
         return key
-        // lmdb-js
-        // await this.db.put(key, value);
     }
 
     async get(key) {
@@ -98,31 +96,85 @@ class LMDBDatabase {
             return {
                 error: 'No Data',
                 status: 'error',
-                type: 'error',
+                type: 'error'
             }
         }
         return JSON.parse(data.toString());
-
-        // lmdb-js
-        // await this.db.get(key)
     }
 
-    async transaction(key, value) {
-        console.log('GET');
+    async query(start, end, offset, limit) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
 
-        // lmdb-js
-        // myDB.transaction(() => {
-        //     myDB.put(key, value);
-        // });
-    }
+        // node-lmdb
+        console.log('LMDB GET');
+        var txn = this.env.beginTxn();
 
-    generateKey(length) {
-        let result = ' ';
-        const charactersLength = this.characters.length;
-        for ( let i = 0; i < length; i++ ) {
-            result += this.characters.charAt(Math.floor(Math.random() * charactersLength));
+        var options = { limit: 10 }
+        if (start) { options.start = start; }
+        if (end) { options.end = end; }
+        if (offset) { options.offset = offset; }
+        if (limit) { options.limit = limit; }
+        var data = txn.getRange(options);
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
         }
-        return result;
+        return JSON.parse(data.toString());
+    }
+
+    async update(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB UPDATE');
+        var txn = this.env.beginTxn();
+        txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
+        }
+        return JSON.parse(data.toString());
+    }
+
+    async delete(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB DELETE');
+        var txn = this.env.beginTxn();
+        txn.del(this.db, key)
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
+        }
+        return true;
     }
 }
 

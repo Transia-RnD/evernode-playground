@@ -1,20 +1,20 @@
 const { LMDBDatabase } = require('../core_services/lmdb-handler')
 const settings = require('../settings.json').settings;
 
-class MessageService {
-    #message = null;
-    #dbPath = 'messages';
+class BetService {
+    #bet = null;
+    #dbPath = 'bets';
     #db = null;
 
-    constructor(message) {
-        this.#message = message;
+    constructor(bet) {
+        this.#bet = bet;
         this.#db = new LMDBDatabase(this.#dbPath);
     }
 
-    // Creates a db record when a message is sent
+    // Creates a db record when a bet is sent
     async create() {
-        const data = this.#message.data;
-        const id = this.#message.id;
+        const data = this.#bet.data;
+        const id = this.#bet.id;
         let resObj = {};
         try {
             this.#db.open();
@@ -23,16 +23,14 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in creating the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
             this.#db.close();
         }
-        // console.log(resObj);
         return resObj;
     }
 
-    // Gets a db record for a message key
+    // Gets a db record for a bet key
     async get() {
-        const id = this.#message.id;
+        const id = this.#bet.id;
         let resObj = {};
         try {
             this.#db.open();
@@ -41,7 +39,25 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in getting the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
+            this.#db.close();
+        }
+        return resObj;
+    }
+
+    // Queries a db record for a bet key
+    async query(start, end, offset, limit) {
+        const start = this.#bet.start;
+        const end = this.#bet.end;
+        const offset = this.#bet.offset;
+        const limit = this.#bet.limit;
+        let resObj = {};
+        try {
+            this.#db.open();
+            const result = await this.#db.query(start, end, offset, limit);
+            resObj.success = { data: result };
+        } catch (error) {
+            resObj.error = `Error in querying the ${this.#dbPath} ${error}`;
+        } finally {
             this.#db.close();
         }
         return resObj;
@@ -49,5 +65,5 @@ class MessageService {
 }
 
 module.exports = {
-    MessageService
+    BetService
 }

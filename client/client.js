@@ -97,20 +97,20 @@ class ClientApp {
     // console.log("binary data: ", binaryData ? binaryData.toString() : null);
   }
 
-  async create(userId, message) {
-    const id = generateKey(20).trim();
-    const type = 'message';
+  async create_bet(userId, bet) {
+    const id = generateKey(20);
+    const type = 'bet';
     const command = 'create';
     const data = {
-      message: message,
-      updatedTime: Date.now(),
-      updatedBy: userId
+      ...bet,
+      createdTime: Date.now(),
+      createdBy: userId
     }
     return this.submit(id, type, command, data)
   }
 
   async get(id) {
-    const type = 'message';
+    const type = 'bet';
     const command = 'get';
     return this.submit(id, type, command);
   }
@@ -182,7 +182,7 @@ async function read(client, id, type, command) {
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 function generateKey(length) {
-  let result = ' ';
+  let result = '';
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -194,7 +194,19 @@ async function main() {
   var client = new ClientApp();
   if (await client.init()) {
     const userId = generateKey(32);
-    const response = await client.create(userId, 'This is a message')
+    const bet = {
+      owners: [],
+      beneficary: '',
+      odd: 1,
+      outcome: '10-ledgers',
+      position: 'open',
+      amount: "10",
+      token: {
+        issuer: null,
+        currency: 'XRP'
+      }
+    }
+    const response = await client.create_bet(userId, bet)
     console.log(response.id);
     const messageData = await client.get(response.id);
     console.log(messageData);

@@ -728,7 +728,7 @@ class LMDBDatabase {
             this.openConnections--;
     }
 
-    create(key, value) {
+    async create(key, value) {
         if (!this.env)
             throw 'Env connection is not open.';
         if (!this.db)
@@ -740,8 +740,6 @@ class LMDBDatabase {
         txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
         txn.commit();
         return key
-        // lmdb-js
-        // await this.db.put(key, value);
     }
 
     async get(key) {
@@ -761,31 +759,85 @@ class LMDBDatabase {
             return {
                 error: 'No Data',
                 status: 'error',
-                type: 'error',
+                type: 'error'
             }
         }
         return JSON.parse(data.toString());
-
-        // lmdb-js
-        // await this.db.get(key)
     }
 
-    async transaction(key, value) {
-        console.log('GET');
+    async query(start, end, offset, limit) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
 
-        // lmdb-js
-        // myDB.transaction(() => {
-        //     myDB.put(key, value);
-        // });
-    }
+        // node-lmdb
+        console.log('LMDB GET');
+        var txn = this.env.beginTxn();
 
-    generateKey(length) {
-        let result = ' ';
-        const charactersLength = this.characters.length;
-        for ( let i = 0; i < length; i++ ) {
-            result += this.characters.charAt(Math.floor(Math.random() * charactersLength));
+        var options = { limit: 10 }
+        if (start) { options.start = start; }
+        if (end) { options.end = end; }
+        if (offset) { options.offset = offset; }
+        if (limit) { options.limit = limit; }
+        var data = txn.getRange(options);
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
         }
-        return result;
+        return JSON.parse(data.toString());
+    }
+
+    async update(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB UPDATE');
+        var txn = this.env.beginTxn();
+        txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
+        }
+        return JSON.parse(data.toString());
+    }
+
+    async delete(key) {
+        if (!this.env)
+            throw 'Env connection is not open.';
+        if (!this.db)
+            throw 'Database connection is not open.';
+
+        // node-lmdb
+        console.log('LMDB DELETE');
+        var txn = this.env.beginTxn();
+        txn.del(this.db, key)
+        txn.commit()
+
+        if (!data) {
+            // throw Error('No Data');
+            return {
+                error: 'No Data',
+                status: 'error',
+                type: 'error'
+            }
+        }
+        return true;
     }
 }
 
@@ -805,37 +857,52 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ });
 // const { SqliteDatabase, DataTypes } = require("../core_services/sqlite-handler")
 const { LMDBDatabase } = __nccwpck_require__(525)
-const { MessageService } = __nccwpck_require__(167);
+// const { PoolService } = require('./pool');
+const { BetService } = __nccwpck_require__(365);
+const { SlipService } = __nccwpck_require__(779);
 const settings = (__nccwpck_require__(419)/* .settings */ .X);
 
 class ApiService {
 
     dbPath = settings.dbPath;
-    #messageService = null;
+    #betService = null;
+    #slipService = null;
 
     constructor() {
         console.log('CONSTRUCTOR');
-        this.db = new LMDBDatabase('messages');
+        this.betsDb = new LMDBDatabase('bets');
+        this.slipsDb = new LMDBDatabase('slips');
     }
 
     async handleRequest(user, message, isReadOnly) {
         console.log('HANDLE REQUEST');
-        this.db.open();
-        this.#messageService = new MessageService(message);
+        this.betsDb.open();
+        this.#betService = new BetService(message);
 
         let result;
         console.log(message.type);
         console.log(message.command);
-        if (message.type == 'message') {
+        if (message.type == 'bet') {
+            this.betsDb.open();
+            this.#betService = new BetService(message);
             if (message.command == 'create') { 
-                result = await this.#messageService.create();
+                result = await this.#betService.create();
+            }
+            if (message.command == 'close') { 
+                result = await this.#betService.close();
             }
             if (message.command == 'get') { 
-                result = await this.#messageService.get();
+                result = await this.#betService.get();
             }
         }
 
-        console.log(result);
+        if (message.type == 'slip') {
+            this.slipDb.open();
+            this.#slipService = new SlipService(message);
+            if (message.command == 'submit') {
+                result = await this.#slipService.submit();
+            }
+        }
         
         if(isReadOnly){
             await this.sendOutput(user, result);
@@ -843,7 +910,7 @@ class ApiService {
             await this.sendOutput(user, {id: message.id, ...result});
         }
 
-        this.db.close();
+        this.betsDb.close();
     }
 
     sendOutput = async (user, response) => {
@@ -854,26 +921,26 @@ class ApiService {
 
 /***/ }),
 
-/***/ 167:
+/***/ 365:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { LMDBDatabase } = __nccwpck_require__(525)
 const settings = (__nccwpck_require__(419)/* .settings */ .X);
 
-class MessageService {
-    #message = null;
-    #dbPath = 'messages';
+class BetService {
+    #bet = null;
+    #dbPath = 'bets';
     #db = null;
 
-    constructor(message) {
-        this.#message = message;
+    constructor(bet) {
+        this.#bet = bet;
         this.#db = new LMDBDatabase(this.#dbPath);
     }
 
-    // Creates a db record when a message is sent
+    // Creates a db record when a bet is sent
     async create() {
-        const data = this.#message.data;
-        const id = this.#message.id;
+        const data = this.#bet.data;
+        const id = this.#bet.id;
         let resObj = {};
         try {
             this.#db.open();
@@ -882,16 +949,14 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in creating the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
             this.#db.close();
         }
-        // console.log(resObj);
         return resObj;
     }
 
-    // Gets a db record for a message key
+    // Gets a db record for a bet key
     async get() {
-        const id = this.#message.id;
+        const id = this.#bet.id;
         let resObj = {};
         try {
             this.#db.open();
@@ -900,7 +965,6 @@ class MessageService {
         } catch (error) {
             resObj.error = `Error in getting the ${this.#dbPath} ${error}`;
         } finally {
-            console.log('FINALLY');
             this.#db.close();
         }
         return resObj;
@@ -908,7 +972,47 @@ class MessageService {
 }
 
 module.exports = {
-    MessageService
+    BetService
+}
+
+/***/ }),
+
+/***/ 779:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { LMDBDatabase } = __nccwpck_require__(525)
+const settings = (__nccwpck_require__(419)/* .settings */ .X);
+
+class SlipService {
+    #slip = null;
+    #dbPath = 'slips';
+    #db = null;
+
+    constructor(slip) {
+        this.#slip = slip;
+        this.#db = new LMDBDatabase(this.#dbPath);
+    }
+
+    // Creates a db record when a slip is created
+    async create() {
+        const data = this.#slip.data;
+        const id = this.#slip.id;
+        let resObj = {};
+        try {
+            this.#db.open();
+            await this.#db.create(id, { ...data });
+            resObj.success = { id: id };
+        } catch (error) {
+            resObj.error = `Error in creating the ${this.#dbPath} ${error}`;
+        } finally {
+            this.#db.close();
+        }
+        return resObj;
+    }
+}
+
+module.exports = {
+    SlipService
 }
 
 /***/ }),

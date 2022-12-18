@@ -52,3 +52,18 @@ To:
 `node client.js`
 
 > This repo would not be possible without @Udith-Gayan and his evernode + sqlite [example](https://github.com/Udith-Gayan/Decentralized-Hotel-Booking-System)
+
+## 1. Create Bet
+
+Creates a bet which includes:
+
+beneficiary: string // account for fee
+odd: float // odds of the bet
+outcome: string (enum) // (we control this for now)
+position: bool // if true, then they (agree) if false then (disagree)
+token: {
+    issuer: string,
+    currency: string,
+} // issued currency
+
+## 2. 
