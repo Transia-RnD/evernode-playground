@@ -49,11 +49,6 @@ hpc.init(contract);
 //   publicKey: 'ed2593d14ca75a4970acd3fb8696e345c0baf6a43449ac2be9d8538b00d869dd7e',
 //   inputs: inputs
 // }
-
-// class User {
-//   publicKey = ''
-//   inputs = []
-// }
 // class Users {
 //   users = []
 //   constructor(users) {
@@ -69,6 +64,4 @@ hpc.init(contract);
 //   }
 // }
 // ctx.users = new Users([user]);
-// // console.log(user);
-// // console.log(ctx);
 // contract(ctx)
