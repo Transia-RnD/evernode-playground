@@ -3,29 +3,29 @@ const { LMDBDatabase } = require("../core_services/lmdb-handler")
 const { MessageService } = require('./message');
 const settings = require('../settings.json').settings;
 
-export class ApiService {
+class ApiService {
 
     dbPath = settings.dbPath;
     #messageService = null;
 
     constructor() {
         console.log('CONSTRUCTOR');
-        this.db = new LMDBDatabase('messages');
+        // this.db = new LMDBDatabase('messages');
     }
 
-    async handleRequest(user, message, isReadOnly) {
+    async handleRequest(user, request, isReadOnly) {
         console.log('HANDLE REQUEST');
-        this.db.open();
-        this.#messageService = new MessageService(message);
 
         let result;
-        console.log(message.type);
-        console.log(message.command);
-        if (message.type == 'message') {
-            if (message.command == 'create') { 
+        console.log(request.type);
+        console.log(request.command);
+        if (request.type == 'message') {
+            // this.db.open();
+            this.#messageService = new MessageService(request);
+            if (request.command == 'create') { 
                 result = await this.#messageService.create();
             }
-            if (message.command == 'get') { 
+            if (request.command == 'get') { 
                 result = await this.#messageService.get();
             }
         }
@@ -35,14 +35,16 @@ export class ApiService {
         if(isReadOnly){
             await this.sendOutput(user, result);
         } else {
-            await this.sendOutput(user, {id: message.id, ...result});
+            await this.sendOutput(user, {id: request.id, ...result});
         }
 
-        this.db.close();
+        // this.db.close();
     }
 
     sendOutput = async (user, response) => {
         await user.send(response);
     }
-
+}
+module.exports = {
+    ApiService
 }

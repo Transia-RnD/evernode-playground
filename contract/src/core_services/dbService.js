@@ -3,7 +3,7 @@ const lmdb = require('node-lmdb');
 const settings = require('../settings.json').settings;
 const fs = require('fs')
 
-export class DbService {
+class DbService {
 
     static #env = null;
     static #db = null;
@@ -27,4 +27,8 @@ export class DbService {
             console.log('INIT DB');
         }
     }
+}
+
+module.exports = {
+    DbService
 }

@@ -15,6 +15,8 @@ class MessageService {
     async create() {
         const data = this.#message.data;
         const id = this.#message.id;
+        console.log(id);
+        console.log(data);
         let resObj = {};
         try {
             this.#db.open();
