@@ -690,7 +690,7 @@ const contract = async (ctx) => {
 
       console.log(message);
       // Pass the JSON message to our application logic component.
-      await api.handleRequest(user, message, isReadOnly);
+      // await api.handleRequest(user, message, isReadOnly);
     }
   }
 }
@@ -721,9 +721,28 @@ hpc.init(contract);
 //   publicKey: 'ed2593d14ca75a4970acd3fb8696e345c0baf6a43449ac2be9d8538b00d869dd7e',
 //   inputs: inputs
 // }
-// ctx.users = [user];
-// console.log(user);
-// console.log(ctx);
+
+// class User {
+//   publicKey = ''
+//   inputs = []
+// }
+// class Users {
+//   users = []
+//   constructor(users) {
+//     this.users = users
+//   }
+
+//   list() {
+//     return this.users
+//   }
+
+//   read(input) {
+//     return input.toString('utf-8');
+//   }
+// }
+// ctx.users = new Users([user]);
+// // console.log(user);
+// // console.log(ctx);
 // contract(ctx)
 })();
 
