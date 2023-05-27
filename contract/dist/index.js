@@ -210,6 +210,10 @@ class ControlChannel {
     }
 
     consume(onMessage) {
+
+        if (this.#readStream)
+            throw "Control channel already consumed.";
+
         this.#readStream = control_fs.createReadStream(null, { fd: this.#fd, highWaterMark: common.constants.MAX_SEQ_PACKET_SIZE });
         this.#readStream.on("data", onMessage);
         this.#readStream.on("error", (err) => { });
@@ -243,9 +247,12 @@ class NplChannel {
 
     consume(onMessage) {
 
+        if (this.#readStream)
+            throw "NPL channel already consumed.";
+
         this.#readStream = npl_fs.createReadStream(null, { fd: this.#fd, highWaterMark: common.constants.MAX_SEQ_PACKET_SIZE });
 
-        // From the hotpocket when sending the npl messages first it sends the public key of the particular node
+        // When hotpocket is sending the npl messages, first it sends the public key of the particular node
         // and then the message, First data buffer is taken as public key and the second one as message,
         // then npl message object is constructed and the event is emmited.
         let publicKey = null;
@@ -606,313 +613,6 @@ module.exports = __nccwpck_require__(224);
 
 /***/ }),
 
-/***/ 31:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-module.exports = require(__nccwpck_require__.ab + "prebuilds/linux-x64/node.abi93.node");
-
-
-/***/ }),
-
-/***/ 878:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "DbService": () => (/* binding */ DbService)
-/* harmony export */ });
-const lmdb = __nccwpck_require__(31);
-// const { open } = require('lmdb');
-const settings = (__nccwpck_require__(419)/* .settings */ .X);
-const fs = __nccwpck_require__(147)
-
-class DbService {
-
-    static #env = null;
-    static #db = null;
-
-    static async initializeDatabase() {
-        if (this.#db == null && !fs.existsSync(settings.dbPath)) {
-            // IF YOU NEED TO INIT THE DB AND ADD DATA FOR TESTING
-            // this.#env = new lmdb.Env();
-            // env.open({
-            //     path: 'mydata',
-            //     mapSize: 2*1024*1024*1024, // maximum database size
-            //     maxDbs: 3
-            // });
-            // this.#env.close();
-
-            // this.#db = open({
-            //     path: 'lmdb',
-            //     compression: true,
-            // });
-            // this.#db.close();
-            console.log('INIT DB');
-        }
-    }
-}
-
-/***/ }),
-
-/***/ 525:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const lmdb = __nccwpck_require__(31);
-// const { open } = require('lmdb');
-
-class LMDBDatabase {
-
-    constructor(dbCollection) {
-        this.characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        this.dbCollection = dbCollection;
-        this.openConnections = 0;
-    }
-
-    open() {
-        // Make sure only one connection is open at a time.
-        // If a connection is already open increase the connection count.
-        // This guarantees only one connection is open even if open() is called before closing the previous connections. 
-        if (this.openConnections <= 0) {
-            console.log('OPEN');
-            // node-lmdb
-            this.env = new lmdb.Env();
-            this.env.open({
-                path: 'mydata',
-                mapSize: 2*1024*1024*1024, // maximum database size
-                maxDbs: 3,
-                // These options prevent LMDB from automatically syncing on commit
-                noMetaSync: true,
-                noSync: true
-            });
-            console.log(`OPENING COLLECTION: ${this.dbCollection}`);
-            this.db = this.env.openDbi({
-                name: this.dbCollection,
-                create: true // will create if database did not exist
-            })
-
-            console.log(this.env);
-            console.log(this.db);
-
-            // lmdb-js
-            // this.db = open({
-            //     path: this.dbCollection,
-            //     compression: true,
-            // });
-            this.openConnections = 1;
-        }
-        else
-            console.log('OPEN - ELSE');
-            this.openConnections++;
-    }
-
-    close() {
-        // Only close the connection for the last open connection.
-        // Otherwise keep decreasing until connection count is 1.
-        // This prevents closing the connection even if close() is called while db is used by another open session.
-        if (this.openConnections <= 1) {
-            console.log('CLOSE');
-            if (this.db && this.env) {
-                this.db.close();
-                this.env.close();
-                this.db = null;
-                this.env = null;
-                this.openConnections = 0;
-            }
-        }
-        else
-            console.log('CLOSE - ELSE');
-            this.openConnections--;
-    }
-
-    create(key, value) {
-        if (!this.env)
-            throw 'Env connection is not open.';
-        if (!this.db)
-            throw 'Database connection is not open.';
-
-        // node-lmdb
-        console.log('LMDB CREATE');
-        var txn = this.env.beginTxn();
-        txn.putBinary(this.db, key, Buffer.from(JSON.stringify(value)));
-        txn.commit();
-        return key
-        // lmdb-js
-        // await this.db.put(key, value);
-    }
-
-    async get(key) {
-        if (!this.env)
-            throw 'Env connection is not open.';
-        if (!this.db)
-            throw 'Database connection is not open.';
-
-        // node-lmdb
-        console.log('LMDB GET');
-        var txn = this.env.beginTxn();
-        var data = txn.getBinary(this.db, key);
-        txn.commit()
-
-        if (!data) {
-            // throw Error('No Data');
-            return {
-                error: 'No Data',
-                status: 'error',
-                type: 'error',
-            }
-        }
-        return JSON.parse(data.toString());
-
-        // lmdb-js
-        // await this.db.get(key)
-    }
-
-    async transaction(key, value) {
-        console.log('GET');
-
-        // lmdb-js
-        // myDB.transaction(() => {
-        //     myDB.put(key, value);
-        // });
-    }
-
-    generateKey(length) {
-        let result = ' ';
-        const charactersLength = this.characters.length;
-        for ( let i = 0; i < length; i++ ) {
-            result += this.characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result;
-    }
-}
-
-module.exports = {
-    LMDBDatabase
-}
-
-/***/ }),
-
-/***/ 232:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "ApiService": () => (/* binding */ ApiService)
-/* harmony export */ });
-// const { SqliteDatabase, DataTypes } = require("../core_services/sqlite-handler")
-const { LMDBDatabase } = __nccwpck_require__(525)
-const { MessageService } = __nccwpck_require__(167);
-const settings = (__nccwpck_require__(419)/* .settings */ .X);
-
-class ApiService {
-
-    dbPath = settings.dbPath;
-    #messageService = null;
-
-    constructor() {
-        console.log('CONSTRUCTOR');
-        this.db = new LMDBDatabase('messages');
-    }
-
-    async handleRequest(user, message, isReadOnly) {
-        console.log('HANDLE REQUEST');
-        this.db.open();
-        this.#messageService = new MessageService(message);
-
-        let result;
-        console.log(message.type);
-        console.log(message.command);
-        if (message.type == 'message') {
-            if (message.command == 'create') { 
-                result = await this.#messageService.create();
-            }
-            if (message.command == 'get') { 
-                result = await this.#messageService.get();
-            }
-        }
-
-        console.log(result);
-        
-        if(isReadOnly){
-            await this.sendOutput(user, result);
-        } else {
-            await this.sendOutput(user, {id: message.id, ...result});
-        }
-
-        this.db.close();
-    }
-
-    sendOutput = async (user, response) => {
-        await user.send(response);
-    }
-
-}
-
-/***/ }),
-
-/***/ 167:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const { LMDBDatabase } = __nccwpck_require__(525)
-const settings = (__nccwpck_require__(419)/* .settings */ .X);
-
-class MessageService {
-    #message = null;
-    #dbPath = 'messages';
-    #db = null;
-
-    constructor(message) {
-        this.#message = message;
-        this.#db = new LMDBDatabase(this.#dbPath);
-    }
-
-    // Creates a db record when a message is sent
-    async create() {
-        const data = this.#message.data;
-        const id = this.#message.id;
-        let resObj = {};
-        try {
-            this.#db.open();
-            await this.#db.create(id, { ...data });
-            resObj.success = { id: id };
-        } catch (error) {
-            resObj.error = `Error in creating the ${this.#dbPath} ${error}`;
-        } finally {
-            console.log('FINALLY');
-            this.#db.close();
-        }
-        // console.log(resObj);
-        return resObj;
-    }
-
-    // Gets a db record for a message key
-    async get() {
-        const id = this.#message.id;
-        let resObj = {};
-        try {
-            this.#db.open();
-            const result = await this.#db.get(id);
-            resObj.success = { data: result };
-        } catch (error) {
-            resObj.error = `Error in getting the ${this.#dbPath} ${error}`;
-        } finally {
-            console.log('FINALLY');
-            this.#db.close();
-        }
-        return resObj;
-    }
-}
-
-module.exports = {
-    MessageService
-}
-
-/***/ }),
-
 /***/ 147:
 /***/ ((module) => {
 
@@ -926,14 +626,6 @@ module.exports = require("fs");
 
 "use strict";
 module.exports = require("tty");
-
-/***/ }),
-
-/***/ 419:
-/***/ ((module) => {
-
-"use strict";
-module.exports = JSON.parse('{"X":{"dbPath":"mydata","contractWalletAddress":"rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr","contractWalletSecret":"sswXtv8odxCnUcBwaySJAV6k4ibTk"}}');
 
 /***/ })
 
@@ -970,34 +662,6 @@ module.exports = JSON.parse('{"X":{"dbPath":"mydata","contractWalletAddress":"rG
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -1007,15 +671,10 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const HotPocket = __nccwpck_require__(875);
-const { ApiService } = __nccwpck_require__(232);
-const { DbService } = __nccwpck_require__(878);
 
 const contract = async (ctx) => {
   console.log('Smart Contract is running.');
   const isReadOnly = ctx.readonly;
-
-  const api = new ApiService();
-  await DbService.initializeDatabase();
 
   console.log(ctx.users);
   for (const user of ctx.users.list()) {

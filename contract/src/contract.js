@@ -1,13 +1,8 @@
 const HotPocket = require("hotpocket-nodejs-contract");
-const { ApiService } = require('./services/api');
-const { DbService } = require("./core_services/dbService");
 
 const contract = async (ctx) => {
   console.log('Smart Contract is running.');
   const isReadOnly = ctx.readonly;
-
-  const api = new ApiService();
-  await DbService.initializeDatabase();
 
   console.log(ctx.users);
   for (const user of ctx.users.list()) {
