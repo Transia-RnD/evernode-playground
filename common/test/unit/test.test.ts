@@ -1,4 +1,3 @@
-
 import { BaseModel, Metadata } from '../../dist/npm/src/models'
 import {
   decodeModel,
@@ -9,7 +8,12 @@ import {
   hexToVarString,
   hexToXRPAddress,
 } from '../../dist/npm/src/util/decode'
-import { UInt64, UInt8, VarString, XRPAddress } from '../../dist/npm/src/util/types'
+import {
+  UInt64,
+  UInt8,
+  VarString,
+  XRPAddress,
+} from '../../dist/npm/src/util/types'
 
 describe('UInt8', () => {
   test('multiple fields', () => {
@@ -42,12 +46,17 @@ describe('UInt8', () => {
       }
     }
 
-    const some = new SampleModel(BigInt(1685216402734), 'LWslHQUc7liAGYUryIhoRNPDbWucJZjj', 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh', 'This is a message')
-    console.log(some.encode());
-    
+    const some = new SampleModel(
+      BigInt(1685216402734),
+      'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
+      'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh',
+      'This is a message'
+    )
+    console.log(some.encode())
+
     const sampleModelDecoded = decodeModel(some.encode(), SampleModel)
-    console.log(sampleModelDecoded);
-    
+    console.log(sampleModelDecoded)
+
     const updateTime = BigInt(1685216402734)
     const updateBy = 'LWslHQUc7liAGYUryIhoRNPDbWucJZjj'
     const owner = 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh'

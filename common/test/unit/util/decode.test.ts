@@ -8,7 +8,12 @@ import {
   hexToVarString,
   hexToXRPAddress,
 } from '../../../dist/npm/src/util/decode'
-import { UInt64, UInt8, VarString, XRPAddress } from '../../../dist/npm/src/util/types'
+import {
+  UInt64,
+  UInt8,
+  VarString,
+  XRPAddress,
+} from '../../../dist/npm/src/util/types'
 
 describe('decode', () => {
   describe('UInt8', () => {

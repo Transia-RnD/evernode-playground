@@ -9,7 +9,13 @@ import {
   xrpAddressToHex,
   lengthToHex,
 } from '../../../dist/npm/src/util/encode'
-import { UInt64, UInt8, VarModelArray, VarString, XRPAddress } from '../../../dist/npm/src/util/types'
+import {
+  UInt64,
+  UInt8,
+  VarModelArray,
+  VarString,
+  XRPAddress,
+} from '../../../dist/npm/src/util/types'
 
 describe('encode', () => {
   describe('UInt8', () => {
