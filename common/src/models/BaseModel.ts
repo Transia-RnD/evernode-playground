@@ -6,6 +6,7 @@ export type ModelClass<T extends BaseModel> = new (...args: any[]) => T
 export type MetadataElement<T extends BaseModel> = {
   field: string
   type:
+    | 'bool'
     | 'uint8'
     | 'uint32'
     | 'uint64'
@@ -50,6 +51,9 @@ export abstract class BaseModel {
       modelClass: fieldModelClass,
     } of metadata) {
       switch (type) {
+        case 'bool':
+          length += 2
+          break
         case 'uint8':
           length += 2
           break
@@ -98,6 +102,8 @@ export abstract class BaseModel {
       .getMetadata()
       .map((metadata: MetadataElement<T>) => {
         switch (metadata.type) {
+          case 'bool':
+            return 0
           case 'uint8':
             return 0
           case 'uint32':

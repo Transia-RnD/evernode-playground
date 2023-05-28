@@ -19,6 +19,11 @@ export function decodeModel<T extends BaseModel>(
   } of metadata) {
     let fieldHex = ''
     switch (type) {
+      case 'bool':
+        fieldHex = hex.slice(hexIndex, hexIndex + 2)
+        decodedField = decodeField(fieldHex, type)
+        hexIndex += 2
+        break
       case 'uint8':
         fieldHex = hex.slice(hexIndex, hexIndex + 2)
         decodedField = decodeField(fieldHex, type)
@@ -101,6 +106,8 @@ function decodeField(
   maxStringLength?: number
 ): unknown {
   switch (type) {
+    case 'bool':
+      return hexToUInt8(hex)
     case 'uint8':
       return hexToUInt8(hex)
     case 'uint32':

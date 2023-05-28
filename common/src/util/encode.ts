@@ -46,6 +46,8 @@ function encodeField(
   maxStringLength?: number
 ): string {
   switch (type) {
+    case 'bool':
+      return uint8ToHex(fieldValue as UInt8)
     case 'uint8':
       return uint8ToHex(fieldValue as UInt8)
     case 'uint32':
