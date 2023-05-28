@@ -1,6 +1,6 @@
 import { deriveAddress, sign } from '@transia/ripple-keypairs'
 import { UInt64, VarString } from '../../dist/npm/src/util/types'
-import { BaseModel, Metadata } from '../../dist/npm/src/models'
+// import { BaseModel, Metadata } from '../../dist/npm/src/models'
 import { validateRequestAgainstRules } from '../../dist/npm/src/rules'
 import fs from 'fs'
 import path from 'path'

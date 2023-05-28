@@ -1,5 +1,5 @@
-import { BaseModel, Metadata } from '../../dist/npm/src/models'
-import { UInt64, VarString } from '../../dist/npm/src/util/types'
+import { BaseModel, Metadata } from './BaseModel'
+import { UInt64, VarString } from '../util/types'
 
 export class MessageModel extends BaseModel {
   updatedTime: UInt64

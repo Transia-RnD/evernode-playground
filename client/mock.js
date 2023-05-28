@@ -1,189 +1,102 @@
-const HotPocket = require('hotpocket-js-client');
+const HotPocket = require("hotpocket-js-client");
+const { MessageModel } = require("ever-library/dist/npm/src/models");
+const { Sdk } = require("ever-library/dist/npm/src/services/sdk");
+const { deriveAddress } = require("xrpl");
+const {} = require("ripple-keypairs");
 // const lmdb = require('node-lmdb');
 
-const nodeIp = process.env.REACT_APP_CONTRACT_NODE_IP || 'localhost';
-const nodePort = process.env.REACT_APP_CONTRACT_NODE_PORT || '8081';
+const nodeIp = process.env.REACT_APP_CONTRACT_NODE_IP || "localhost";
+const nodePort = process.env.REACT_APP_CONTRACT_NODE_PORT || "8081";
 
 class InputStatus {
-  status = ''
-  reason = ''
+  status = "";
+  reason = "";
   constructor(status, reason) {
-    this.status = status
-    this.reason = reason
+    this.status = status;
+    this.reason = reason;
   }
 }
 class Input {
-  input = ''
+  input = "";
   constructor(input) {
-    this.input = input
+    this.input = input;
   }
 
   async submissionStatus() {
-    return new Promise(resolve => {
-      resolve(new InputStatus('accepted', 'Mock Reason'));
+    return new Promise((resolve) => {
+      resolve(new InputStatus("accepted", "Mock Reason"));
     });
   }
 }
 class Output {
-  error = ''
-  success = ''
+  error = "";
+  success = "";
   constructor(input) {
-    this.input = input
+    this.input = input;
   }
 }
 
 class MockClient {
-  postInput = ''
-  getInput = ''
-  
+  postInput = "";
+  getInput = "";
+
   async submitContractInput(input) {
-    return new Promise(resolve => {
-      if (JSON.parse(input).command === 'create') {
+    return new Promise((resolve) => {
+      if (JSON.parse(input).command === "create") {
         this.postInput = input;
       }
       console.log(`MOCK POST: ${this.postInput}`);
       resolve(new Input(this.postInput));
     });
-  };
+  }
 
   async submitContractReadRequest(input) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       console.log(`MOCK GET: ${input}`);
-      this.getInput = input
+      this.getInput = input;
       resolve(this.getInput);
     });
   }
 }
 
 class MockResponse {
-  id = ''
-  data = ''
+  id = "";
+  data = "";
   constructor(id, data = null) {
-    this.id = id
+    this.id = id;
     if (data) {
-      this.data = JSON.parse(data).data
+      this.data = JSON.parse(data).data;
     }
   }
 }
 
 class ClientApp {
-
   // Provide singleton instance
   static instance = ClientApp.instance || new ClientApp();
 
   userKeyPair = null;
   client = null;
-  isConnectionSucceeded = false;
-  server = `wss://${nodeIp}:${nodePort}`
-
   isInitCalled = false;
-
   promiseMap = new Map();
 
   async init() {
-
-    console.log("Initialized")
+    console.log("Initialized");
     if (this.userKeyPair == null) {
       this.userKeyPair = await HotPocket.generateKeys();
     }
-    this.client = new MockClient()
+    this.client = new MockClient();
     this.isInitCalled = true;
 
     return true;
   }
-
-  async create(userId, message) {
-    const id = generateKey(20).trim();
-    const type = 'message';
-    const command = 'create';
-    const data = {
-      message: message,
-      updatedTime: Date.now(),
-      updatedBy: userId
-    }
-    return this.submit(id, type, command, data)
-  }
-
-  async get(id) {
-    const type = 'message';
-    const command = 'get';
-    return this.submit(id, type, command);
-  }
-
-  async submit(id, type, command, data) {
-    let resolver, rejecter;
-    const submitObj = {
-      type: type,
-      command: command
-    };
-
-    if (data) {
-      submitObj.data = data;
-    }
-
-    try {
-      const data = { id: id, ...submitObj };
-      const inpString = JSON.stringify(data);
-      console.log(data);
-      this.client.submitContractInput(inpString).then(input => {
-        input.submissionStatus().then(s => {
-          if (s.status !== "accepted") {
-            console.log(`Ledger_Rejection: ${s.reason}`);
-            throw (`Ledger_Rejection: ${s.reason}`);
-          }
-        });
-      });
-
-      if (type === 'message' && command === 'create') {
-        return new MockResponse(id)
-      }
-
-      if (type === 'message' && command === 'get') {
-        console.log(this.client.postInput);
-        return new MockResponse(id, this.client.postInput)
-      }
-
-      return new Promise((resolve, reject) => {
-        resolver = resolve;
-        rejecter = reject;
-        this.promiseMap.set(id, { resolver: resolver, rejecter: rejecter });
-      });
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
 }
-
-async function read(client, id, type, command) {
-  const submitObj = {
-    type: type,
-    command: command
-  };
-  try {
-    const data = { id: id, ...submitObj };
-    const inpString = JSON.stringify(data);
-    const output = await client.submitContractReadRequest(inpString);
-    if (!output) {
-      return null;
-    }
-    if (output.error) {
-      throw (output.error);
-    } else {
-      return output.success;
-    }
-  } catch (error) {
-    throw error;
-  }
-}
-
-// program to generate random strings
 
 // declare all characters
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const characters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 function generateKey(length) {
-  let result = ' ';
+  let result = " ";
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -191,14 +104,43 @@ function generateKey(length) {
   return result;
 }
 
+function hexKey(key) {
+  return key
+    .reduce(
+      (accumulator, value) => accumulator + value.toString(16).padStart(2, "0"),
+      ""
+    )
+    .toUpperCase();
+}
+
 async function main() {
   var client = new ClientApp();
   if (await client.init()) {
     const userId = generateKey(32);
-    const response = await client.create(userId, 'This is a message')
-    console.log(response.id);
-    const messageData = await client.get(response.id);
-    console.log(messageData);
+    console.log(userId);
+
+    // POST
+    const model = new MessageModel(
+      BigInt(1685216402734),
+      "LWslHQUc7liAGYUryIhoRNPDbWucJZjj",
+      "This is a message"
+    );
+    const keypair = {
+      publicKey: hexKey(client.userKeyPair.publicKey),
+      privateKey: hexKey(client.userKeyPair.privateKey),
+    };
+    console.log(keypair);
+    const binary = model.encode();
+    const sdk = new Sdk("one", keypair, client.client);
+    const ref = sdk
+      .collection("Messages")
+      .document(deriveAddress(keypair.publicKey));
+    const response = await ref.set(binary);
+    console.log(response);
+    // const response = await client.create(userId, "This is a message");
+    // console.log(response.id);
+    // const messageData = await client.get(response.id);
+    // console.log(messageData);
   }
 }
-main()
+main();

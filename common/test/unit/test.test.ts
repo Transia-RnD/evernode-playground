@@ -1,4 +1,4 @@
-import { BaseModel, Metadata } from '../../dist/npm/src/models'
+// import { BaseModel, Metadata } from '../../dist/npm/src/models'
 import {
   decodeModel,
   hexToUInt8,

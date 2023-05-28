@@ -1,5 +1,4 @@
-// import { Wallet, deriveAddress } from '@transia/xrpl'
-import { Wallet, convertStringToHex } from '@transia/xrpl'
+import { convertStringToHex } from '@transia/xrpl'
 import { prepareRequest } from './api'
 import { Request } from '../rules/types'
 // import { Request, Response } from '../rules/types'
@@ -37,6 +36,16 @@ import { Request } from '../rules/types'
 //   return path
 // }
 
+export class KeyPair {
+  publicKey: string = null
+  privateKey: string = null
+
+  constructor(publicKey: string, privateKey: string) {
+    this.publicKey = publicKey
+    this.privateKey = privateKey
+  }
+}
+
 export class CollectionReference {
   path: string = null
   doc: DocumentReference = null
@@ -73,10 +82,10 @@ export class DocumentReference {
       'GET',
       path,
       convertStringToHex(path),
-      this.col.sdk.wallet.publicKey,
-      this.col.sdk.wallet.privateKey
+      this.col.sdk.keypair.publicKey,
+      this.col.sdk.keypair.privateKey
     )
-    await this.col.sdk.submit(request)
+    await this.col.sdk.read(request)
   }
 
   async set(binary: string) {
@@ -89,8 +98,8 @@ export class DocumentReference {
       'POST',
       path,
       binary,
-      this.col.sdk.wallet.publicKey,
-      this.col.sdk.wallet.privateKey
+      this.col.sdk.keypair.publicKey,
+      this.col.sdk.keypair.privateKey
     )
     await this.col.sdk.submit(request)
   }
@@ -105,8 +114,8 @@ export class DocumentReference {
       'PUT',
       path,
       binary,
-      this.col.sdk.wallet.publicKey,
-      this.col.sdk.wallet.privateKey
+      this.col.sdk.keypair.publicKey,
+      this.col.sdk.keypair.privateKey
     )
     await this.col.sdk.submit(request)
   }
@@ -121,8 +130,8 @@ export class DocumentReference {
       'DELETE',
       path,
       convertStringToHex(path),
-      this.col.sdk.wallet.publicKey,
-      this.col.sdk.wallet.privateKey
+      this.col.sdk.keypair.publicKey,
+      this.col.sdk.keypair.privateKey
     )
     await this.col.sdk.submit(request)
   }
@@ -134,13 +143,13 @@ export class DocumentReference {
 
 export class Sdk {
   client: any = null
-  wallet: Wallet = null
+  keypair: KeyPair = null
   database: string = null
   promiseMap = new Map()
 
-  constructor(database: string, wallet: Wallet, client: any) {
+  constructor(database: string, keypair: KeyPair, client: any) {
     this.database = database
-    this.wallet = wallet
+    this.keypair = keypair
     this.client = client
   }
 
@@ -169,6 +178,15 @@ export class Sdk {
           rejecter: rejecter,
         })
       })
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  }
+  async read(request: Request) {
+    try {
+      const inpString = JSON.stringify(request)
+      return this.client.submitContractReadRequest(inpString)
     } catch (error) {
       console.log(error)
       throw error

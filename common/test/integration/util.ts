@@ -9,11 +9,11 @@ export function readFile(filename: string): string {
   return jsonString.toString()
 }
 
-export async function setupClient(): Promise<XrplIntegrationTestContext> {
+export async function setupClient(): Promise<EvernodeTestContext> {
   const config = JSON.parse(readFile('../fixtures/config.json'))
   const currency = 'USD'
 
-  const context: XrplIntegrationTestContext = {
+  const context: EvernodeTestContext = {
     notactive: Wallet.fromSeed(config.notactive.seed),
     master: Wallet.fromSeed(config.master.seed),
     gw: Wallet.fromSeed(config.gw.seed),
