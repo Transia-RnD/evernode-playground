@@ -1,5 +1,13 @@
 const HotPocket = require("hotpocket-js-client");
-// const lmdb = require('node-lmdb');
+const {
+  Sdk,
+  EverKeyPair,
+  MessageModel,
+  decodeModel,
+  Uint8ArrayToHex,
+  hexToUint8Array
+} = require('ever-lmdb-sdk')
+const { deriveAddress } = require('ripple-keypairs');
 
 const nodeIp = process.env.REACT_APP_CONTRACT_NODE_IP || "localhost";
 const nodePort = process.env.REACT_APP_CONTRACT_NODE_PORT || "8081";
@@ -9,7 +17,7 @@ class ClientApp {
   static instance = ClientApp.instance || new ClientApp();
 
   userKeyPair = null;
-  client = null;
+  hp = null;
   isConnectionSucceeded = false;
   server = `wss://${nodeIp}:${nodePort}`;
 
@@ -21,30 +29,32 @@ class ClientApp {
     console.log("Initialized");
     if (this.userKeyPair == null) {
       this.userKeyPair = await HotPocket.generateKeys();
+      this.userKeyPair = {
+        publicKey: hexToUint8Array('ED0807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89'),
+        privateKey: hexToUint8Array('ED86EB7A3DB392BCA921259F722BBA46B0B742678BFEABA198B2FE7EB7C776F3220807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89')
+      }
     }
-    if (this.client == null) {
-      this.client = await HotPocket.createClient(
+    if (this.hp == null) {
+      this.hp = await HotPocket.createClient(
         [this.server],
         this.userKeyPair
       );
     }
 
     // This will get fired if HP server disconnects unexpectedly.
-    this.client.on(HotPocket.events.disconnect, () => {
+    this.hp.on(HotPocket.events.disconnect, () => {
       console.log("Disconnected");
       this.isConnectionSucceeded = false;
     });
 
     // This will get fired as servers connects/disconnects.
-    this.client.on(HotPocket.events.connectionChange, (server, action) => {
+    this.hp.on(HotPocket.events.connectionChange, (server, action) => {
       console.log(server + " " + action);
     });
 
     // This will get fired when contract sends outputs.
-    this.client.on(HotPocket.events.contractOutput, (r) => {
+    this.hp.on(HotPocket.events.contractOutput, (r) => {
       r.outputs.forEach((o) => {
-        // const outputLog = o.length <= 10000 ? o : `[Big output (${o.length / 1024} KB)]`;
-        // console.log(`Output (ledger:${r.ledgerSeqNo})>> ${outputLog}`);
         const pId = o.id;
         if (o.error) {
           this.promiseMap.get(pId).rejecter(o.error);
@@ -56,12 +66,12 @@ class ClientApp {
       });
     });
 
-    this.client.on(HotPocket.events.healthEvent, (ev) => {
+    this.hp.on(HotPocket.events.healthEvent, (ev) => {
       console.log(ev);
     });
 
     if (!this.isConnectionSucceeded) {
-      if (!(await this.client.connect())) {
+      if (!(await this.hp.connect())) {
         console.log("Connection failed.");
         return false;
       }
@@ -72,135 +82,29 @@ class ClientApp {
     this.isInitCalled = true;
 
     return true;
-
-    // var env = new lmdb.Env();
-    // env.open({
-    //     // Path to the environment
-    //     path: "mydata",
-    //     // Maximum number of databases
-    //     maxDbs: 10
-    // });
-    // var dbi = env.openDbi({
-    //   name: "mydb2",
-    //   create: true
-    // });
-
-    // Create transaction
-    // var txn = env.beginTxn();
-
-    // const value = { message: 'This is a message' }
-    // const buffer = Buffer.from(JSON.stringify(value));
-    // txn.putBinary(dbi, id, buffer);
-    // txn.commit()
-
-    // var binaryData = txn.getBinary(dbi, id);
-    // txn.commit()
-    // console.log("binary data: ", binaryData ? binaryData.toString() : null);
   }
-
-  async create(userId, message) {
-    const id = generateKey(20).trim();
-    const type = "message";
-    const command = "create";
-    const data = {
-      message: message,
-      updatedTime: Date.now(),
-      updatedBy: userId,
-    };
-    return this.submit(id, type, command, data);
-  }
-
-  async get(id) {
-    const type = "message";
-    const command = "get";
-    return this.submit(id, type, command);
-  }
-
-  async submit(id, type, command, data) {
-    let resolver, rejecter;
-    const submitObj = {
-      type: type,
-      command: command,
-    };
-
-    if (data) {
-      submitObj.data = data;
-    }
-
-    try {
-      const data = { id: id, ...submitObj };
-      const inpString = JSON.stringify(data);
-      console.log(data);
-
-      this.client.submitContractInput(inpString).then((input) => {
-        input.submissionStatus.then((s) => {
-          if (s.status !== "accepted") {
-            console.log(`Ledger_Rejection: ${s.reason}`);
-            throw `Ledger_Rejection: ${s.reason}`;
-          }
-        });
-      });
-
-      return new Promise((resolve, reject) => {
-        resolver = resolve;
-        rejecter = reject;
-        this.promiseMap.set(id, { resolver: resolver, rejecter: rejecter });
-      });
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-}
-
-async function read(client, id, type, command) {
-  const submitObj = {
-    type: type,
-    command: command,
-  };
-  try {
-    const data = { id: id, ...submitObj };
-    const inpString = JSON.stringify(data);
-    console.log(data);
-    const output = await client.submitContractReadRequest(inpString);
-    console.log(output);
-    if (!output) {
-      return null;
-    }
-    if (output.error) {
-      throw output.error;
-    } else {
-      return output.success;
-    }
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-
-// program to generate random strings
-
-// declare all characters
-const characters =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-function generateKey(length) {
-  let result = " ";
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
 }
 
 async function main() {
   var client = new ClientApp();
   if (await client.init()) {
-    const userId = generateKey(32);
-    const response = await client.create(userId, "This is a message");
-    console.log(response.id);
-    const messageData = await client.get(response.id);
-    console.log(messageData);
+    const everKp = new EverKeyPair(
+      Uint8ArrayToHex(client.userKeyPair.publicKey), 
+      Uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
+    )
+    const model = new MessageModel(
+      BigInt(1685216402734),
+      'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
+      'This is a message'
+    )
+    const address = deriveAddress(everKp.publicKey)
+    const sdk = new Sdk('one', everKp, client)
+    const ref = sdk.collection('Messages').document(address)
+    // const post_response = await ref.set(model.encode())
+    // console.log(post_response);
+    const response = await ref.get()
+    const decoded = decodeModel(response.snapshot.binary, MessageModel)
+    console.log(decoded)
   }
 }
 main();

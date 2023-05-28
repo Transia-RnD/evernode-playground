@@ -1,5 +1,5 @@
 {
-    "name": "daocontract",
+    "name": "playground-contract",
     "version": "1.0.0",
     "scripts": {
         "build": "npx ncc build src/contract.js -o dist",
@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@vercel/ncc": "^0.36.1",
-        "hotpocket-nodejs-contract": "^0.5.7",
-        "node-lmdb": "^0.9.7"
+        "ever-lmdb-sdk": "^1.0.1",
+        "hotpocket-nodejs-contract": "^0.5.7"
     }
 }
