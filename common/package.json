@@ -7,8 +7,8 @@
     "format": "npx prettier --write ./src",
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "test": "yarn run build && jest --detectOpenHandles",
-    "test:integration": "make"
+    "test:unit": "jest --config=jest.config.unit.js --coverage",
+    "test:integration": "jest --config=jest.config.integration.js"
   },
   "author": "",
   "license": "ISC",

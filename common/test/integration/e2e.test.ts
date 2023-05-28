@@ -1,6 +1,7 @@
-import { deriveAddress, sign, verify } from '@transia/ripple-keypairs'
+import { deriveAddress, sign } from '@transia/ripple-keypairs'
 import { UInt64, VarString } from '../../dist/npm/src/util/types'
 import { BaseModel, Metadata } from '../../dist/npm/src/models'
+import { validateRequestAgainstRules } from '../../dist/npm/src/rules'
 
 const SampleModel = class extends BaseModel {
   updatedTime: UInt64
