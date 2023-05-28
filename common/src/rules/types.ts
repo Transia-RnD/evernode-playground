@@ -6,12 +6,20 @@ export interface Auth {
 }
 
 export interface Request {
+  id: string
+  type: string
   database: string
   method: string
   path: string
   data?: Record<string, any>
   binary?: string | null // signed data(write) or path(read)
   auth?: Auth
+}
+
+export interface Response {
+  id?: string
+  snapshot?: Record<string, any>
+  error?: string
 }
 
 export interface Rules {

@@ -2,6 +2,16 @@ import { deriveAddress, sign } from '@transia/ripple-keypairs'
 import { UInt64, VarString } from '../../dist/npm/src/util/types'
 import { BaseModel, Metadata } from '../../dist/npm/src/models'
 import { validateRequestAgainstRules } from '../../dist/npm/src/rules'
+import fs from 'fs'
+import path from 'path'
+import { Rules } from '../../dist/npm/src/rules/types'
+
+export function readFile(filename: string): string {
+  const jsonString = fs.readFileSync(
+    path.resolve(__dirname, `../fixtures/${filename}`)
+  )
+  return jsonString.toString()
+}
 
 const SampleModel = class extends BaseModel {
   updatedTime: UInt64
@@ -32,8 +42,9 @@ const SampleModel = class extends BaseModel {
   }
 }
 
-describe('rules khan xrpl binary', () => {
-  test('write xrpl success - read|auth write|auth', () => {
+describe('end to end', () => {
+  test('end to end success', () => {
+    const rules = JSON.parse(readFile('rules.xrpl.json')) as Rules
     const model = new SampleModel(
       BigInt(1685216402734),
       'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
@@ -57,18 +68,6 @@ describe('rules khan xrpl binary', () => {
         pk: publicKey,
       },
     }
-    const rules = `{
-      "rules_version": "1",
-      "service": "cloud.lmdb",
-      "/databases/{database}/documents": {
-        "/MasterUserList/{userId}": {
-          "read": "request.auth.uid != null && request.auth.uid == userId && request.auth.type == xrpl",
-          "write": "request.auth.uid != null && request.auth.uid == userId && request.auth.type == xrpl"
-        }
-      }
-    }`
-    console.log(request)
-    console.log(rules)
     expect(validateRequestAgainstRules(request, rules)).toBe(true)
   })
 })
