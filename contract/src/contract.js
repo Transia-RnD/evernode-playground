@@ -1,19 +1,12 @@
 const HotPocket = require("hotpocket-nodejs-contract");
-const { Sdk, ApiService, MessageModel, prepareRequest } = require('ever-lmdb-sdk');
-const { convertStringToHex } = require('xrpl');
-const { deriveAddress } = require('ripple-keypairs');
+const { ApiService } = require("ever-lmdb-sdk");
 
 const contract = async (ctx) => {
-  console.log('Smart Contract is running.');
   const isReadOnly = ctx.readonly;
-  console.log(ctx.users);
-
   const api = new ApiService();
   for (const user of ctx.users.list()) {
-    // console.log(user);
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {
-
       // Read the data buffer sent by user (this can be any kind of data like string, json or binary data).
       const buf = await ctx.users.read(input);
 
@@ -24,9 +17,7 @@ const contract = async (ctx) => {
       await api.handleRequest(user, request, isReadOnly);
     }
   }
-}
-
-
+};
 const hpc = new HotPocket.Contract();
 hpc.init(contract);
 
