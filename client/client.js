@@ -30,9 +30,13 @@ class ClientApp {
     if (this.userKeyPair == null) {
       this.userKeyPair = await HotPocket.generateKeys();
       this.userKeyPair = {
-        publicKey: hexToUint8Array('ED0807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89'),
-        privateKey: hexToUint8Array('ED86EB7A3DB392BCA921259F722BBA46B0B742678BFEABA198B2FE7EB7C776F3220807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89')
-      }
+        publicKey: hexToUint8Array(
+          "ED0807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89"
+        ),
+        privateKey: hexToUint8Array(
+          "ED86EB7A3DB392BCA921259F722BBA46B0B742678BFEABA198B2FE7EB7C776F3220807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89"
+        ),
+      };
     }
     if (this.client == null) {
       this.client = await HotPocket.createClient(
@@ -88,6 +92,7 @@ class ClientApp {
 async function main() {
   var client = new ClientApp();
   if (await client.init()) {
+    // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
       uint8ArrayToHex(client.userKeyPair.publicKey), 
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
