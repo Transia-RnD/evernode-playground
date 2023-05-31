@@ -1,16 +1,12 @@
 const HotPocket = require("hotpocket-nodejs-contract");
-const { Sdk, ApiService, MessageModel, prepareRequest } = require('ever-lmdb-sdk');
-const { convertStringToHex } = require('xrpl');
-const { deriveAddress } = require('ripple-keypairs');
+const { ApiService } = require('ever-lmdb-sdk');
 
 const contract = async (ctx) => {
   console.log('Smart Contract is running.');
   const isReadOnly = ctx.readonly;
-  console.log(ctx.users);
 
   const api = new ApiService();
   for (const user of ctx.users.list()) {
-    // console.log(user);
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {
 
@@ -29,6 +25,11 @@ const contract = async (ctx) => {
 
 const hpc = new HotPocket.Contract();
 hpc.init(contract);
+
+// const HotPocket = require("hotpocket-nodejs-contract");
+// const { Sdk, ApiService, MessageModel, prepareRequest } = require('ever-lmdb-sdk');
+// const { convertStringToHex } = require('xrpl');
+// const { deriveAddress } = require('ripple-keypairs');
 
 // class User {
 //   publicKey = ''

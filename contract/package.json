@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@vercel/ncc": "^0.36.1",
-        "ever-lmdb-sdk": "^1.0.1",
+        "ever-lmdb-sdk": "^1.0.6",
         "hotpocket-nodejs-contract": "^0.5.7"
     }
 }
