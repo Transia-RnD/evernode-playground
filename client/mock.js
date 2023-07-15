@@ -1,6 +1,5 @@
 const HotPocket = require("hotpocket-js-client");
-const { MessageModel } = require("ever-library/dist/npm/src/models");
-const { Sdk } = require("ever-library/dist/npm/src/services/sdk");
+const { Sdk, MessageModel } = require("ever-lmdb-sdk");
 const { deriveAddress } = require("xrpl");
 const {} = require("ripple-keypairs");
 // const lmdb = require('node-lmdb');
@@ -33,40 +32,6 @@ class Output {
   success = "";
   constructor(input) {
     this.input = input;
-  }
-}
-
-class MockClient {
-  postInput = "";
-  getInput = "";
-
-  async submitContractInput(input) {
-    return new Promise((resolve) => {
-      if (JSON.parse(input).command === "create") {
-        this.postInput = input;
-      }
-      console.log(`MOCK POST: ${this.postInput}`);
-      resolve(new Input(this.postInput));
-    });
-  }
-
-  async submitContractReadRequest(input) {
-    return new Promise((resolve) => {
-      console.log(`MOCK GET: ${input}`);
-      this.getInput = input;
-      resolve(this.getInput);
-    });
-  }
-}
-
-class MockResponse {
-  id = "";
-  data = "";
-  constructor(id, data = null) {
-    this.id = id;
-    if (data) {
-      this.data = JSON.parse(data).data;
-    }
   }
 }
 
@@ -125,18 +90,21 @@ async function main() {
       "LWslHQUc7liAGYUryIhoRNPDbWucJZjj",
       "This is a message"
     );
+    console.log(model);
     const keypair = {
       publicKey: hexKey(client.userKeyPair.publicKey),
       privateKey: hexKey(client.userKeyPair.privateKey),
     };
     console.log(keypair);
     const binary = model.encode();
+    console.log(binary);
     const sdk = new Sdk("one", keypair, client.client);
     const ref = sdk
       .collection("Messages")
-      .document(deriveAddress(keypair.publicKey));
-    const response = await ref.set(binary);
-    console.log(response);
+      .document()
+      .withConverter(MessageModel);
+    const postResponse = await ref.set(model);
+    console.log(postResponse);
     // const response = await client.create(userId, "This is a message");
     // console.log(response.id);
     // const messageData = await client.get(response.id);
