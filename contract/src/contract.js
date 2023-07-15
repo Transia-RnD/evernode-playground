@@ -1,11 +1,10 @@
 const HotPocket = require("hotpocket-nodejs-contract");
-const { ApiService } = require("ever-lmdb-sdk");
-const { CustomService } = require("handler");
+const { ApiService } = require("libs/ever-lmdb/api");
 
 const contract = async (ctx) => {
   const isReadOnly = ctx.readonly;
   const api = new ApiService();
-  const custom = new CustomService();
+  // const custom = new CustomService();
   for (const user of ctx.users.list()) {
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {
@@ -16,12 +15,7 @@ const contract = async (ctx) => {
       const request = JSON.parse(buf);
 
       // Pass the JSON request to our application logic component.
-      if (request.type === "cloud.lmdb") {
-        await api.handleRequest(user, request, isReadOnly);
-      }
-      if (request.type === "custom") {
-        await custom.handleRequest(user, request, isReadOnly);
-      }
+      await api.handleRequest(user, request, isReadOnly);
     }
   }
 };
