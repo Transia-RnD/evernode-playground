@@ -1,10 +1,11 @@
 {
     "name": "daoclient",
     "scripts": {
+        "mock": "node mock.js",
         "start": "node client.js"
     },
     "dependencies": {
-        "ever-lmdb-sdk": "^1.0.6",
+        "ever-lmdb-sdk": "^1.0.10-alpha.1",
         "hotpocket-js-client": "0.5.3",
         "node-lmdb": "^0.9.7"
     }

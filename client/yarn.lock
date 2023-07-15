@@ -335,10 +335,10 @@ es6-object-assign@^1.1.0:
   resolved "https://registry.yarnpkg.com/es6-object-assign/-/es6-object-assign-1.1.0.tgz#c2c3582656247c39ea107cb1e6652b6f9f24523c"
   integrity sha512-MEl9uirslVwqQU369iHNWZXsI8yaZYGg/D65aOgZkeyFJwHYSxilf7rQzXKI7DdDuBPrBXbfk3sl9hJhmd5AUw==
 
-ever-lmdb-sdk@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/ever-lmdb-sdk/-/ever-lmdb-sdk-1.0.6.tgz#44912c764874b895196dc90b1f4d0afa5ce84cc9"
-  integrity sha512-iq2N5QLpu/T0GqGCYhLNSNn6p2sLikkBpkbqVOuWXKfmsIjUl5JCfEddh7B4NnX3lS0PCRG9npHAmx0lL7rLOA==
+ever-lmdb-sdk@^1.0.10-alpha.1:
+  version "1.0.10-alpha.1"
+  resolved "https://registry.yarnpkg.com/ever-lmdb-sdk/-/ever-lmdb-sdk-1.0.10-alpha.1.tgz#a8f8df7433ff381a0da64b6feee37cda53181d20"
+  integrity sha512-Yu3SrdAH0gobzPVcnDz9F8BaMkv6VfN/mzIADKWFqLQJ19XplR1mUDyTGNNn7MClXD91/4tl5ovmD2RpEhrZ0A==
   dependencies:
     crypto-browserify "^3.12.0"
     node-lmdb "^0.9.7"
