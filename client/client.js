@@ -5,9 +5,9 @@ const {
   MessageModel,
   decodeModel,
   uint8ArrayToHex,
-  hexToUint8Array
-} = require('ever-lmdb-sdk')
-const { deriveAddress } = require('ripple-keypairs');
+  hexToUint8Array,
+} = require("ever-lmdb-sdk");
+const { deriveAddress } = require("ripple-keypairs");
 
 const nodeIp = process.env.REACT_APP_CONTRACT_NODE_IP || "localhost";
 const nodePort = process.env.REACT_APP_CONTRACT_NODE_PORT || "8081";
@@ -94,21 +94,24 @@ async function main() {
   if (await client.init()) {
     // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
-      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
-    )
+    );
     const model = new MessageModel(
       BigInt(1685216402734),
-      'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
-      'This is a message'
-    )
-    const address = deriveAddress(everKp.publicKey)
-    const sdk = new Sdk(everKp, client)
-    const ref = sdk.collection('Messages').document().withConverter(MessageModel)
+      "LWslHQUc7liAGYUryIhoRNPDbWucJZjj",
+      "This is a message"
+    );
+    const address = deriveAddress(everKp.publicKey);
+    const sdk = new Sdk(everKp, client);
+    const ref = sdk
+      .collection("Messages")
+      .document()
+      .withConverter(MessageModel);
     // const post_response = await ref.set(model)
     // console.log(post_response);
-    const message = await ref.get()
-    console.log(message)
+    const message = await ref.get();
+    console.log(message);
   }
 }
 main();
