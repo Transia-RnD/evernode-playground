@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export EV_TENANT_SECRET=sh2TnuWTvChC5gzeJeC9LrHXBSoVD
+export EV_USER_PRIVATE_KEY=ed93a88b554bd237b5f9e1418f7f8da849f704113ff5a0927f6cdb32b76c2f09be2f06a72850d48b025c4c9f53776a6dc1d20e2e28fa1429570f672c3b6984360e
+export EV_USER_PUBLIC_KEY=ed2f06a72850d48b025c4c9f53776a6dc1d20e2e28fa1429570f672c3b6984360e
+export EV_INSTANCE_CONFIG_PATH=/Users/denisangell/projects/transia/evernode-playground/contract/config.json
