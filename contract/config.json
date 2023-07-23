@@ -1,0 +1,13 @@
+{
+    "contract": {
+        "consensus": {
+            "roundtime": 6000
+        }
+    },
+    "mesh": {
+        "peer_discovery": {
+            "enabled": true,
+            "interval": 10000
+        }
+    }
+}
