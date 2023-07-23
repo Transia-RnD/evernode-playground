@@ -2,6 +2,8 @@ const HotPocket = require("hotpocket-js-client");
 const {
   Sdk,
   EverKeyPair,
+  OwnerModel,
+  ChatModel,
   MessageModel,
   uint8ArrayToHex,
   hexToUint8Array,
@@ -89,29 +91,74 @@ class ClientApp {
   }
 }
 
-async function main() {
+async function createChat() {
   var client = new ClientApp();
   if (await client.init()) {
     // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
-      uint8ArrayToHex(client.userKeyPair.publicKey),
+      uint8ArrayToHex(client.userKeyPair.publicKey), 
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
-    );
-    const model = new MessageModel(
-      BigInt(1685216402734),
-      "LWslHQUc7liAGYUryIhoRNPDbWucJZjj",
-      "This is a message"
-    );
-    const address = deriveAddress(everKp.publicKey);
-    const sdk = new Sdk(everKp, client);
-    const ref = sdk
-      .collection("Messages")
-      .document()
-      .withConverter(MessageModel);
-    // const post_response = await ref.set(model)
-    // console.log(post_response);
-    const message = await ref.get();
-    console.log(message);
+    )
+    const address = deriveAddress(everKp.publicKey)
+    const sdk = new Sdk(everKp, client)
+    const owner1 = new OwnerModel(address)
+    const owner2 = new OwnerModel("rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr")
+    const chatModel = new ChatModel(
+      address,
+      [owner1, owner2]
+    )
+    const chatRef = sdk.collection('Chats').document()
+    chatRef.withConverter(ChatModel)
+    console.log(chatRef.path);
+    await chatRef.set(chatModel)
+    const chat = await chatRef.get()
+    console.log(chat)
   }
 }
-main();
+
+async function getChat() {
+  var client = new ClientApp();
+  if (await client.init()) {
+    // Create the KeyPair for ever-lmdb
+    const everKp = new EverKeyPair(
+      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
+    )
+    const sdk = new Sdk(everKp, client)
+    const chatRef = sdk.collection('Chats').document('unT72YzW0AGonGAiD0nEbpcYIMErXkyg')
+    chatRef.withConverter(ChatModel)
+    const chat = await chatRef.get()
+    console.log(chat)
+  }
+}
+
+async function createMessage() {
+  var client = new ClientApp();
+  if (await client.init()) {
+    // Create the KeyPair for ever-lmdb
+    const everKp = new EverKeyPair(
+      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
+    )
+    const address = deriveAddress(everKp.publicKey)
+    const sdk = new Sdk(everKp, client)
+    const model = new MessageModel(
+      BigInt(1685216402734),
+      'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
+      'This is a message'
+    )
+    const chatRef = sdk.collection('Chats').document()
+    chatRef.withConverter(MessageModel)
+    const messageRef = chatRef.collection('Messages').document(address)
+    const chatResponse = await chatRef.set(chatModel)
+    const post_response = await ref.set(model)
+    // console.log(post_response);
+    const message = await ref.get()
+    console.log(message)
+  }
+}
+
+// createChat();
+getChat();
+// createMessage();
+// main();
