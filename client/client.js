@@ -3,14 +3,14 @@ const {
   Sdk,
   EverKeyPair,
   MessageModel,
-  decodeModel,
   uint8ArrayToHex,
   hexToUint8Array,
 } = require("ever-lmdb-sdk");
-const { deriveAddress } = require("ripple-keypairs");
+const { deriveAddress } = require("@transia/ripple-keypairs");
+require("dotenv/config");
 
-const nodeIp = process.env.REACT_APP_CONTRACT_NODE_IP || "localhost";
-const nodePort = process.env.REACT_APP_CONTRACT_NODE_PORT || "8081";
+const nodeIp = process.env.CONTRACT_NODE_IP || "localhost";
+const nodePort = process.env.CONTRACT_NODE_PORT || "8081";
 
 class ClientApp {
   // Provide singleton instance
