@@ -1,33 +1,38 @@
-const fs = require("fs");
+const fs = require("fs").promises;
+const path = require("path");
 
 // Define the source and destination paths
-const sourcePath = "./rules.json";
-const destPath = "./dist/rules.json";
+const sourceDir = "./";
+const destDir = "./dist/";
+const mydataDir = "./dist/mydata";
 
-function createDirectory(dirPath) {
-  fs.mkdir(dirPath, { recursive: true }, (err) => {
-    if (err) {
-      console.log(`Error creating directory: ${err}`);
-    } else {
-      console.log("Directory created successfully!");
-    }
-  });
+const filesToCopy = ["rules.json", "hp.cfg.override"]; // Add your files here
+
+async function createDirectory(dirPath) {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+    console.log("Directory created successfully!");
+  } catch (err) {
+    console.log(`Error creating directory: ${err}`);
+  }
 }
 
-createDirectory("./dist/mydata");
+async function copyFiles(sourceDir, destDir, files) {
+  await createDirectory(destDir);
+  await createDirectory(mydataDir);
 
-// Read the source file
-fs.readFile(sourcePath, "utf8", function (err, data) {
-  if (err) {
-    console.log(`Error reading file from disk: ${err}`);
-  } else {
-    // Write the file to the destination path
-    fs.writeFile(destPath, data, function (err) {
-      if (err) {
-        console.log(`Error writing file to disk: ${err}`);
-      } else {
-        console.log("File copied successfully!");
-      }
-    });
+  for (const file of files) {
+    const sourcePath = path.join(sourceDir, file);
+    const destPath = path.join(destDir, file);
+
+    try {
+      const data = await fs.readFile(sourcePath, "utf8");
+      await fs.writeFile(destPath, data);
+      console.log(`File ${file} copied successfully!`);
+    } catch (err) {
+      console.log(`Error copying file ${file}: ${err}`);
+    }
   }
-});
+}
+
+copyFiles(sourceDir, destDir, filesToCopy);
