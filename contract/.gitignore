@@ -1,5 +1,8 @@
 node_modules
 
+bundle/
+dist/
+
 # Keyfiles
 instance.json
 keystore.json

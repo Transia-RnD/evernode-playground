@@ -10,9 +10,6 @@ node_modules
 mydata/data.mdb
 mydata/lock.mdb
 
-# evernode
-/contract/bundle
-
 # api-commands.txt
 
 # React App
