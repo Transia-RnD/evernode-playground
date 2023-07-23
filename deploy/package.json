@@ -9,7 +9,8 @@
     },
     "dependencies": {
         "@vercel/ncc": "^0.36.1",
-        "ever-lmdb-sdk": "^1.0.10-alpha.1",
+        "dotenv": "^16.3.1",
+        "evernode-js-client": "^0.6.15",
         "hotpocket-nodejs-contract": "^0.5.7",
         "node-lmdb": "^0.9.7"
     }

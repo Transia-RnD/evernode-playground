@@ -1,6 +1,8 @@
 node_modules
 
 # Keyfiles
+.env
+env/
 instance.json
 keystore.json
 

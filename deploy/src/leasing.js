@@ -1,23 +1,24 @@
 const evernode = require("evernode-js-client");
+require("dotenv/config");
 
 const debug = require("debug");
 const log = debug("contract:client");
 
 async function acquire() {
-  const tenantAddress = "rEwL1ND2JLWw2dA38fcY1hMq39QJL8nsqi";
-  const tenantSecret = "sh2TnuWTvChC5gzeJeC9LrHXBSoVD";
+  const tenantAddress = process.env.EV_TENANT_ADDRESS;
+  const tenantSecret = process.env.EV_TENANT_SECRET;
   const tenant = new evernode.TenantClient(tenantAddress, tenantSecret, {
-    governorAddress: "rGVHr1PrfL93UAjyw3DWZoi9adz2sLp2yL",
-    rippledServer: "wss://hooks-testnet-v3.xrpl-labs.com",
+    governorAddress: process.env.EV_GOV_ADDRESS,
+    rippledServer: process.env.WSS_RIPPLED_SERVER,
   });
+  console.log(tenant);
   await tenant.connect();
 
   try {
     const timeout = 10000;
     const moments = 5;
-    const instanceName =
-      "491D0C9F35D49BE690074814179907E8EA989724BB1E0BC9054B64E6F00F2464"; // get from deployment info
-    const hostAddress = "rLHzHbqGF4RCf5Z9oDNQfvPXY5wGaKZrp4"; // get from deployment info
+    const instanceName = process.env.CONTRACT_NODE_NAME; // get from deployment info
+    const hostAddress = process.env.CONTRACT_NODE_ADDRESS; // get from deployment info
 
     const result = await tenant.extendLease(hostAddress, moments, instanceName);
     log("Tenant received instance ", result);
