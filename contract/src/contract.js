@@ -1,5 +1,5 @@
 const HotPocket = require("hotpocket-nodejs-contract");
-const { ApiService } = require("libs/ever-lmdb/api");
+const { ApiService } = require("./libs/ever-lmdb/api");
 
 const contract = async (ctx) => {
   const isReadOnly = ctx.readonly;

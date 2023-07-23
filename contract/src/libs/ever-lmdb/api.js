@@ -1,24 +1,22 @@
-import { DbService, User } from "ever-lmdb-sdk";
-import { Request, Response } from "ever-lmdb-sdk/dist/npm/src/rules/types";
+import { DbService } from "ever-lmdb-sdk";
 
 export class ApiService {
   // @ts-expect-error - leave this alone
-  #dbService: DbService = null;
+  #dbService = null;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async handleRequest(user: User, request: Request, isReadOnly: boolean) {
+  async handleRequest(user, request, isReadOnly) {
     console.log(`HANDLE REQUEST: ${request.method}`);
     let result;
 
     try {
       this.#dbService = new DbService(request);
-      // @ts-expect-error - leave this alone
       this.#dbService.loadrules();
-    } catch (error: any) {
-      await user.send({ id: request.id, error: error.message } as Response);
+    } catch (error) {
+      await user.send({ id: request.id, error: error.message });
     }
     if (request.method == "POST") {
       // Your functionality here
@@ -55,7 +53,7 @@ export class ApiService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sendOutput = async (user: User, response: Response) => {
+  sendOutput = async (user, response) => {
     await user.send(response);
   };
 }
