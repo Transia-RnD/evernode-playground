@@ -10,6 +10,9 @@ node_modules
 mydata/data.mdb
 mydata/lock.mdb
 
+# evernode
+/contract/bundle
+
 # api-commands.txt
 
 # React App
@@ -34,3 +37,5 @@ backups
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
