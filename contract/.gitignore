@@ -1,0 +1,8 @@
+node_modules
+
+# Keyfiles
+instance.json
+keystore.json
+
+# logs
+error.log
