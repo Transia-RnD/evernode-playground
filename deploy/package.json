@@ -1,5 +1,5 @@
 {
-    "name": "playground-contract",
+    "name": "playground-deploy",
     "version": "1.0.0",
     "scripts": {
         "keygen": "evdevkit keygen",
