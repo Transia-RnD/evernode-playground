@@ -2,7 +2,7 @@
     "name": "playground-contract",
     "version": "1.0.0",
     "scripts": {
-        "build": "npx ncc build src/contract.js -o dist",
+        "build": "node scripts/build.js && npx ncc build src/contract.js -o dist",
         "build:prod": "npx ncc build src/contract.js --minify -o dist",
         "start": "npm run build && hpdevkit deploy dist",
         "deploy": "hpdevkit deploy dist",
@@ -10,7 +10,8 @@
     },
     "dependencies": {
         "@vercel/ncc": "^0.36.1",
-        "ever-lmdb-sdk": "^1.0.10-alpha.1",
-        "hotpocket-nodejs-contract": "^0.5.7"
+        "ever-lmdb-sdk": "^1.1.0",
+        "hotpocket-nodejs-contract": "^0.5.7",
+        "node-lmdb": "^0.9.7"
     }
 }
