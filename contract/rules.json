@@ -1,10 +1,20 @@
 {
-    "rules_version": "1",
-    "service": "cloud.lmdb",
-    "/databases/{database}/documents": {
-      "/Messages/{userId}": {
-        "read": "request.auth.uid != null && request.auth.uid == userId && request.auth.type == xrpl",
-        "write": "request.auth.uid != null && request.auth.uid == userId && request.auth.type == xrpl"
+  "rules_version": "1",
+  "service": "cloud.lmdb",
+  "/databases/{database}/documents": {
+    "/Chats/{chatId}": {
+      "read": "true",
+      "create": "!exists(/databases/{database}/documents/Chats/{chatId}) && request.resource.data.createdBy == request.auth.uid",
+      "update":  "get(/databases/$(database)/documents/Chats/{chatId}).data.createdBy == request.auth.uid",
+      "delete":  "get(/databases/$(database)/documents/Chats/{chatId}).data.createdBy == request.auth.uid",
+      "/Messages/{messageId}": {
+        "read": "get(/databases/$(database)/documents/Chats/{chatId}).data.owners.includes({account}, {request.auth.uid}) == request.auth.uid",
+        "write": false
       }
+    },
+    "/{document=**}": {
+      "read": false,
+      "write": false
     }
   }
+}
