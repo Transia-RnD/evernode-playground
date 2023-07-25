@@ -6,7 +6,7 @@ const sourceDir = "./";
 const destDir = "./dist/";
 const mydataDir = "./dist/mydata";
 
-const filesToCopy = ["rules.json", "hp.cfg.override"]; // Add your files here
+const filesToCopy = ["rules.json", "hp.cfg.override", "credentials.json"]; // Add your files here
 
 async function createDirectory(dirPath) {
   try {

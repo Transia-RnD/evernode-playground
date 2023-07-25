@@ -1,5 +1,6 @@
 const HotPocket = require("hotpocket-js-client");
 const {
+  LogEmitter,
   Sdk,
   EverKeyPair,
   OwnerModel,
@@ -22,15 +23,16 @@ class ClientApp {
   client = null;
   isConnectionSucceeded = false;
   server = `wss://${nodeIp}:${nodePort}`;
+  logger = new LogEmitter('client-playground', 'client')
 
   isInitCalled = false;
 
   promiseMap = new Map();
 
   async init() {
-    console.log("Initialized");
+    this.logger.info("Initialized");
     if (this.userKeyPair == null) {
-      this.userKeyPair = await HotPocket.generateKeys();
+      // this.userKeyPair = await HotPocket.generateKeys();
       this.userKeyPair = {
         publicKey: hexToUint8Array(
           "ED0807B9DA22DEBA87ABCBF8F5E9CF242F585158AA5D653CDB080AB04B0A8A6E89"
@@ -49,17 +51,18 @@ class ClientApp {
 
     // This will get fired if HP server disconnects unexpectedly.
     this.client.on(HotPocket.events.disconnect, () => {
-      console.log("Disconnected");
+      this.logger.info("Disconnected");
       this.isConnectionSucceeded = false;
     });
 
     // This will get fired as servers connects/disconnects.
     this.client.on(HotPocket.events.connectionChange, (server, action) => {
-      console.log(server + " " + action);
+      this.logger.info(server + " " + action);
     });
 
     // This will get fired when contract sends outputs.
     this.client.on(HotPocket.events.contractOutput, (r) => {
+      this.logger.info(r);
       r.outputs.forEach((o) => {
         const pId = o.id;
         if (o.error) {
@@ -73,15 +76,15 @@ class ClientApp {
     });
 
     this.client.on(HotPocket.events.healthEvent, (ev) => {
-      console.log(ev);
+      this.logger.info(ev);
     });
 
     if (!this.isConnectionSucceeded) {
       if (!(await this.client.connect())) {
-        console.log("Connection failed.");
+        this.logger.info("Connection failed.");
         return false;
       }
-      console.log("HotPocket Connected.");
+      this.logger.info("HotPocket Connected.");
       this.isConnectionSucceeded = true;
     }
 
@@ -100,7 +103,7 @@ async function createChat() {
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
     )
     const address = deriveAddress(everKp.publicKey)
-    const sdk = new Sdk(everKp, client)
+    const sdk = new Sdk(client.logger, everKp, client)
     const owner1 = new OwnerModel(address)
     const owner2 = new OwnerModel("rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr")
     const chatModel = new ChatModel(
@@ -124,8 +127,8 @@ async function getChat() {
       uint8ArrayToHex(client.userKeyPair.publicKey), 
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
     )
-    const sdk = new Sdk(everKp, client)
-    const chatRef = sdk.collection('Chats').document('unT72YzW0AGonGAiD0nEbpcYIMErXkyg')
+    const sdk = new Sdk(client.logger, everKp, client)
+    const chatRef = sdk.collection('Chats').document('SuCP08CcCreFGeg6hSbawOIs1rJhQzWH')
     chatRef.withConverter(ChatModel)
     const chat = await chatRef.get()
     console.log(chat)
@@ -158,7 +161,7 @@ async function createMessage() {
   }
 }
 
-// createChat();
-getChat();
+createChat();
+// getChat();
 // createMessage();
 // main();

@@ -16,7 +16,7 @@ async function acquire() {
 
   try {
     const timeout = 10000;
-    const moments = 5;
+    const moments = 10;
     const instanceName = process.env.CONTRACT_NODE_NAME; // get from deployment info
     const hostAddress = process.env.CONTRACT_NODE_ADDRESS; // get from deployment info
 

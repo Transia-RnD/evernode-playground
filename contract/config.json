@@ -1,7 +1,7 @@
 {
     "contract": {
         "consensus": {
-            "roundtime": 6000
+            "roundtime": 2000
         }
     },
     "mesh": {

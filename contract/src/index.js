@@ -1,10 +1,14 @@
 const HotPocket = require("hotpocket-nodejs-contract");
+const { LogEmitter } = require("ever-lmdb-sdk/dist/npm/src/services/logger");
 const { ApiService } = require("./libs/ever-lmdb/api");
+// const { ApiService } = require("ever-lmdb-sdk");
 
 const contract = async (ctx) => {
   const isReadOnly = ctx.readonly;
-  const api = new ApiService();
+  const logger = new LogEmitter(`test-${ctx.contractId}`, 'contract')
+  const api = new ApiService(`test-${ctx.contractId}`);
   // const custom = new CustomService();
+  logger.info('CONTRACT PING')
   for (const user of ctx.users.list()) {
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {

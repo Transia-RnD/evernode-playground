@@ -4,8 +4,8 @@
         "start": "node client.js"
     },
     "dependencies": {
-        "ever-lmdb-sdk": "^1.1.0",
-        "hotpocket-js-client": "^0.5.3",
+        "ever-lmdb-sdk": "^1.1.0-alpha.5",
+        "hotpocket-js-client": "^0.5.5",
         "node-lmdb": "^0.9.7"
     }
 }
