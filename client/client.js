@@ -99,7 +99,7 @@ async function createChat() {
   if (await client.init()) {
     // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
-      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
     )
     const address = deriveAddress(everKp.publicKey)
@@ -113,9 +113,9 @@ async function createChat() {
     const chatRef = sdk.collection('Chats').document()
     chatRef.withConverter(ChatModel)
     console.log(chatRef.path);
-    await chatRef.set(chatModel)
-    const chat = await chatRef.get()
-    console.log(chat)
+    await chatRef.set(chatModel);
+    const chat = await chatRef.get();
+    console.log(chat);
   }
 }
 
@@ -124,7 +124,7 @@ async function getChat() {
   if (await client.init()) {
     // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
-      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
     )
     const sdk = new Sdk(client.logger, everKp, client)
@@ -140,24 +140,24 @@ async function createMessage() {
   if (await client.init()) {
     // Create the KeyPair for ever-lmdb
     const everKp = new EverKeyPair(
-      uint8ArrayToHex(client.userKeyPair.publicKey), 
+      uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
-    )
-    const address = deriveAddress(everKp.publicKey)
-    const sdk = new Sdk(everKp, client)
+    );
+    const address = deriveAddress(everKp.publicKey);
+    const sdk = new Sdk(everKp, client);
     const model = new MessageModel(
       BigInt(1685216402734),
-      'LWslHQUc7liAGYUryIhoRNPDbWucJZjj',
-      'This is a message'
-    )
-    const chatRef = sdk.collection('Chats').document()
-    chatRef.withConverter(MessageModel)
-    const messageRef = chatRef.collection('Messages').document(address)
-    const chatResponse = await chatRef.set(chatModel)
-    const post_response = await ref.set(model)
+      "LWslHQUc7liAGYUryIhoRNPDbWucJZjj",
+      "This is a message"
+    );
+    const chatRef = sdk.collection("Chats").document();
+    chatRef.withConverter(MessageModel);
+    const messageRef = chatRef.collection("Messages").document(address);
+    const chatResponse = await chatRef.set(chatModel);
+    const post_response = await ref.set(model);
     // console.log(post_response);
-    const message = await ref.get()
-    console.log(message)
+    const message = await ref.get();
+    console.log(message);
   }
 }
 
