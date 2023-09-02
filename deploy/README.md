@@ -25,7 +25,7 @@ export EV_USER_PUBLIC_KEY=ed2f06a72850d48b025c4c9f53776a6dc1d20e2e28fa1429570f67
 export EV_INSTANCE_CONFIG_PATH=config.json
 ```
 
-`./scripts/env.sh`
+`./env/env.sh`
 
 ## Build The Distribution Bundle
 

@@ -5,10 +5,10 @@ const { ApiService } = require("./libs/ever-lmdb/api");
 
 const contract = async (ctx) => {
   const isReadOnly = ctx.readonly;
-  const logger = new LogEmitter(`test-${ctx.contractId}`, 'contract')
+  const logger = new LogEmitter(`test-${ctx.contractId}`, "contract");
   const api = new ApiService(`test-${ctx.contractId}`);
   // const custom = new CustomService();
-  logger.info('CONTRACT PING')
+  logger.info("CONTRACT PING");
   for (const user of ctx.users.list()) {
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {

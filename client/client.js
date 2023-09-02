@@ -23,7 +23,7 @@ class ClientApp {
   client = null;
   isConnectionSucceeded = false;
   server = `wss://${nodeIp}:${nodePort}`;
-  logger = new LogEmitter('client-playground', 'client')
+  logger = new LogEmitter("client-playground", "client");
 
   isInitCalled = false;
 
@@ -94,6 +94,18 @@ class ClientApp {
   }
 }
 
+async function main() {
+  var client = new ClientApp();
+  if (await client.init()) {
+    // Create the KeyPair for ever-lmdb
+    const everKp = new EverKeyPair(
+      uint8ArrayToHex(client.userKeyPair.publicKey),
+      uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
+    );
+    console.log("CONNECTED");
+  }
+}
+
 async function createChat() {
   var client = new ClientApp();
   if (await client.init()) {
@@ -101,17 +113,14 @@ async function createChat() {
     const everKp = new EverKeyPair(
       uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
-    )
-    const address = deriveAddress(everKp.publicKey)
-    const sdk = new Sdk(client.logger, everKp, client)
-    const owner1 = new OwnerModel(address)
-    const owner2 = new OwnerModel("rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr")
-    const chatModel = new ChatModel(
-      address,
-      [owner1, owner2]
-    )
-    const chatRef = sdk.collection('Chats').document()
-    chatRef.withConverter(ChatModel)
+    );
+    const address = deriveAddress(everKp.publicKey);
+    const sdk = new Sdk(client.logger, everKp, client);
+    const owner1 = new OwnerModel(address);
+    const owner2 = new OwnerModel("rGVfAGdDF9fzsmfePkyHK2HnD25BKMKNbr");
+    const chatModel = new ChatModel(address, [owner1, owner2]);
+    const chatRef = sdk.collection("Chats").document();
+    chatRef.withConverter(ChatModel);
     console.log(chatRef.path);
     await chatRef.set(chatModel);
     const chat = await chatRef.get();
@@ -126,12 +135,14 @@ async function getChat() {
     const everKp = new EverKeyPair(
       uint8ArrayToHex(client.userKeyPair.publicKey),
       uint8ArrayToHex(client.userKeyPair.privateKey).slice(0, 66)
-    )
-    const sdk = new Sdk(client.logger, everKp, client)
-    const chatRef = sdk.collection('Chats').document('SuCP08CcCreFGeg6hSbawOIs1rJhQzWH')
-    chatRef.withConverter(ChatModel)
-    const chat = await chatRef.get()
-    console.log(chat)
+    );
+    const sdk = new Sdk(client.logger, everKp, client);
+    const chatRef = sdk
+      .collection("Chats")
+      .document("SuCP08CcCreFGeg6hSbawOIs1rJhQzWH");
+    chatRef.withConverter(ChatModel);
+    const chat = await chatRef.get();
+    console.log(chat);
   }
 }
 
@@ -161,7 +172,7 @@ async function createMessage() {
   }
 }
 
-createChat();
+// createChat();
 // getChat();
 // createMessage();
-// main();
+main();
