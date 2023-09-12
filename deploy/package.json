@@ -6,7 +6,7 @@
         "build": "evdevkit bundle ../contract/dist $EV_USER_PUBLIC_KEY /usr/bin/node -a index.js",
         "acquire": "evdevkit acquire > instance.json 2> error.log",
         "deploy": "evdevkit deploy ../contract/bundle/bundle.zip $EV_USER_IP $EV_USER_PORT",
-        "deploy:cluster": "evdevkit cluster-create 3 ../contract/ /usr/bin/node -a index.js"
+        "deploy:cluster": "evdevkit cluster-create 3 ../contract/dist /usr/bin/node -a index.js"
     },
     "dependencies": {
         "@vercel/ncc": "^0.36.1",

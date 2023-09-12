@@ -9,6 +9,7 @@ const contract = async (ctx) => {
   const api = new ApiService(`test-${ctx.contractId}`);
   // const custom = new CustomService();
   logger.info("CONTRACT PING");
+  logger.info(`LEDGER SEQ: ${ctx.lclSeqNo}`);
   for (const user of ctx.users.list()) {
     // Loop through inputs sent by each user.
     for (const input of user.inputs) {
