@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "build": "node scripts/build.js && npx ncc build src/index.js -o dist",
-        "build:prod": "npx ncc build src/index.js --minify -o dist",
+        "build:prod": "node scripts/build.js && npx ncc build src/index.js --minify -o dist",
         "deploy": "hpdevkit deploy dist",
         "clean": "hpdevkit clean"
     },
