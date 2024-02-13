@@ -1,18 +1,11 @@
 {
     "name": "playground-deploy",
     "version": "1.0.0",
-    "scripts": {
-        "keygen": "evdevkit keygen",
-        "build": "evdevkit bundle ../contract/dist $EV_USER_PUBLIC_KEY /usr/bin/node -a index.js",
-        "acquire": "evdevkit acquire > instance.json 2> error.log",
-        "deploy": "evdevkit deploy ../contract/bundle/bundle.zip $EV_USER_IP $EV_USER_PORT",
-        "deploy:cluster": "evdevkit cluster-create 3 ../contract/dist /usr/bin/node -a index.js"
-    },
+    "scripts": {},
     "dependencies": {
         "@vercel/ncc": "^0.36.1",
         "dotenv": "^16.3.1",
         "evernode-js-client": "^0.6.20",
-        "hotpocket-nodejs-contract": "^0.5.9",
-        "node-lmdb": "^0.9.7"
+        "hotpocket-nodejs-contract": "^0.5.9"
     }
 }
